@@ -18,7 +18,7 @@ const useAPI = () => {
             const response = await axios.post(`${API_BASE_URL}/auth/refresh_token`, {}, {
                 headers: {
                     'refresh': 'true',
-                    'Authorization': refreshToken
+                    'Authorization': refreshToken,
                 }
             });
             if (response.status === SUCCESS_STATUS_CODE && response.data.result) {
@@ -35,7 +35,9 @@ const useAPI = () => {
 
     const CALL = async (method, url, body = {}, retries = 0, newToken, formData = false, needAllResponse = false) => {
         const headers = {
-            'Authorization': newToken ? newToken : token
+            'Authorization': newToken ? newToken : token,
+            "ngrok-skip-browser-warning": "69420",
+
         };
         if (userType) {
             headers.Usertype = userType;

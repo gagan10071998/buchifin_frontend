@@ -18,6 +18,8 @@ import { convertDate } from 'app/utils/appHelpers';
 import FirmDetails from './firm';
 import OverviewEditModal from './OverviewEditModal';
 import FirmEditModal from './FirmEditModal';
+import BankAcc from './BankAcc';
+import RetailerDoc from './Documents';
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -79,6 +81,8 @@ const About = ({ record, setRecord, fetchRetailer }) => {
                                 <TabList onChange={handleChange} aria-label="lab API tabs example">
                                     <Tab label="Overview" value="1" />
                                     <Tab label="Firm Details" value="2" />
+                                    <Tab label="Bank Account" value="3" />
+                                    <Tab label="Documents" value="4" />
                                 </TabList>
                             </Div>
                         </TabContext>
@@ -296,11 +300,17 @@ const About = ({ record, setRecord, fetchRetailer }) => {
 
 
                 {(value === "2" ? <FirmDetails record={record} /> : <></>)}
+                {(value === "3" ? <BankAcc record={record} /> : <></>)}
+                {(value === "4" ? <RetailerDoc record={record} /> : <></>)}
+
+                
+
 
 
 
                 {overviewEditModalOpen && <OverviewEditModal record={record} setOverviewEditModalOpen={setOverviewEditModalOpen} fetchRetailer={fetchRetailer}/>}
                 {firmEditModalOpen && <FirmEditModal record={record} setFirmEditModalOpen={setFirmEditModalOpen} fetchRetailer={fetchRetailer}/>}
+                
 
             </JumboCardQuick>
 

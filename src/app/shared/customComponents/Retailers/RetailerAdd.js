@@ -23,6 +23,8 @@ import Div from "@jumbo/shared/Div";
 import Close from "@mui/icons-material/Close";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import "./styles.css";
+
 
 
 const RetailerAdd = ({
@@ -31,6 +33,7 @@ const RetailerAdd = ({
   onSuccessfulAdd,
   onError,
 }) => {
+  const pincodes = require('indian-pincodes');
   const { POST } = useAPI();
   const [showPassword, setShowPassword] = useState(false);
   const [dob, setDob] = useState(null);
@@ -39,6 +42,7 @@ const RetailerAdd = ({
   const steps = ["Retailer Details", "Firm Details"];
   const [firmType, setFirmType] = useState("");
   const [gender, setGender] = useState("");
+
 
   const totalSteps = () => {
     return steps.length;
@@ -131,6 +135,8 @@ const RetailerAdd = ({
     firmAddress: "",
     firmPin: ""
   });
+
+  console.log(formValues.pin)
 
   const [formErrors, setFormErrors] = useState({});
 
@@ -302,7 +308,7 @@ const RetailerAdd = ({
 
   const isFormValid = () => {
     const allFieldsFilled = Object.values(formValues).every(
-      (value) =>  value !== ""
+      (value) => value !== ""
     );
     const noErrors = Object.values(formErrors).every(
       (error) => error === ""
@@ -311,15 +317,65 @@ const RetailerAdd = ({
     return allFieldsFilled && noErrors;
   };
 
-  useEffect(()=>{
+  useEffect(() => {
+    if (formValues.pin.length === 6) {
+      const details = pincodes.getPincodeDetails(parseInt(formValues.pin));
 
-  })
-  
+      if (details) {
+        setFormValues((prev) => ({
+          ...prev,
+          country: details.country,
+          city: details.division,
+          district: details.district,
+          state: details.state
+        }))
+      }
+      else {
+        setFormValues((prev) => ({
+          ...prev,
+          country: "",
+          city: "",
+          district: "",
+          state: ""
+        }))
+      }
+    }
+  }, [formValues.pin])
+
+  useEffect(() => {
+    if (formValues.firmPin.length === 6) {
+      const details = pincodes.getPincodeDetails(parseInt(formValues.firmPin));
+
+      if (details) {
+        setFormValues((prev) => ({
+          ...prev,
+          firmCountry: details.country,
+          firmCity: details.division,
+          firmDistrict: details.district,
+          firmState: details.state
+        }))
+      }
+      else {
+        setFormValues((prev) => ({
+          ...prev,
+          country: "",
+          city: "",
+          district: "",
+          state: ""
+        }))
+      }
+    }
+  }, [formValues.firmPin])
+
 
   return (
     <React.Fragment>
       <div>
-        <Dialog open={open} maxWidth={"600"} fullWidth={true}>
+        <Dialog open={open} PaperProps={{
+          style: {
+            width: '600px'
+          },
+        }} fullWidth={false}>
           <DialogTitle>Add New Retailer</DialogTitle>
           <IconButton
             edge="end"
@@ -458,6 +514,20 @@ const RetailerAdd = ({
                   />
                   <TextField
                     required
+                    id="outlined-pin"
+                    label="PIN"
+                    placeholder="PIN"
+                    onChange={handleInputChange}
+                    error={Boolean(formErrors.pin)}
+                    helperText={formErrors.pin}
+                    value={formValues.pin}
+                    type="number"
+                    inputProps={{
+                      maxLength: 6
+                    }}
+                  />
+                  <TextField
+                    required
                     id="outlined-country"
                     label="Country"
                     placeholder="country"
@@ -496,16 +566,7 @@ const RetailerAdd = ({
                     helperText={formErrors.city}
                     value={formValues.city}
                   />
-                  <TextField
-                    required
-                    id="outlined-pin"
-                    label="PIN"
-                    placeholder="PIN"
-                    onChange={handleInputChange}
-                    error={Boolean(formErrors.pin)}
-                    helperText={formErrors.pin}
-                    value={formValues.pin}
-                  />
+
                   <TextField
                     required
                     id="outlined-password"
@@ -600,6 +661,16 @@ const RetailerAdd = ({
                     helperText={formErrors.firmAddress}
                     value={formValues.firmAddress}
                   />
+                   <TextField
+                    required
+                    id="outlined-firmPin"
+                    label="Firm PIN"
+                    placeholder="Firm PIN"
+                    onChange={handleInputChange}
+                    error={Boolean(formErrors.firmPin)}
+                    helperText={formErrors.firmPin}
+                    value={formValues.firmPin}
+                  />
                   <TextField
                     required
                     id="outlined-firmCountry"
@@ -640,16 +711,7 @@ const RetailerAdd = ({
                     helperText={formErrors.firmCity}
                     value={formValues.firmCity}
                   />
-                  <TextField
-                    required
-                    id="outlined-firmPin"
-                    label="Firm PIN"
-                    placeholder="Firm PIN"
-                    onChange={handleInputChange}
-                    error={Boolean(formErrors.firmPin)}
-                    helperText={formErrors.firmPin}
-                    value={formValues.firmPin}
-                  />
+                 
                 </>
               )}
             </Stack>
