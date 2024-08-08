@@ -6,7 +6,7 @@ import styled from "@emotion/styled";
 import HomeIcon from '@mui/icons-material/Home';
 import TruncateText from '../../../TruncateTextComponent';
 import Divider from "@mui/material/Divider";
-import { convertDate } from 'app/utils/appHelpers';
+import { convertDate, maskAadhar, maskPAN } from 'app/utils/appHelpers';
 import EditIcon from '@mui/icons-material/Edit';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {
@@ -21,6 +21,7 @@ import {
 import Stack from "@mui/material/Stack";
 import useAPI from "app/hooks/useApi";
 import Close from "@mui/icons-material/Close";
+import useToast from 'app/hooks/useToast';
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -37,27 +38,21 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
 }));
 
 
+
 const RetailerDoc = ({ record }) => {
-    console.log(record)
-    const { PUT, GET } = useAPI();
+
+    const { PUT, GET, POST } = useAPI();
     const [editBankModal, setEditBankModal] = useState(false);
-    const aadharRef = useRef(null);
+    const aadharFrontRef = useRef(null);
+    const aadharBackRef = useRef(null);
     const panRef = useRef(null);
-
-
-
-    function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', options);
-    }
-
-
+    const showToast = useToast();
     const [firm, setFirm] = useState(null);
-
     const [formValues, setFormValues] = useState({
-        aadharFileName: "",
-        aadharFile: "",
+        aadharFileFrontName: "",
+        aadharFileBackName: "",
+        aadharFileFront: "",
+        aadharFileBack: "",
         aadhar: "",
         PANFileName: "",
         pan: "",
@@ -93,24 +88,40 @@ const RetailerDoc = ({ record }) => {
         }
     };
 
+    console.log(formValues)
+
     const handleSubscribe = async () => {
-        let payload = {
-            bankDetails: {
-                accountName: formValues.bankAccountName,
-                accountNumber: formValues.bankAccount,
-                ifscCode: formValues.bankIFSC,
-                bankName: formValues.bankName
-            },
+
+        const formdata = new FormData();
+        formdata.append("id", firm._id);
+        formdata.append("aadhaar[number]", formValues.aadhar);
+        formdata.append("pan[number]", formValues.pan);
+        formdata.append("aadhaar[doc][front]", formValues.aadharFileFront);
+        formdata.append("aadhaar[doc][back]", formValues.aadharFileBack);
+        formdata.append("pan[doc][front]", formValues.PANFile);
+        console.log(...formdata)
+
+        const requestOptions = {
+            body: formdata,
+            redirect: "follow"
         };
 
+
         try {
-            const response = await PUT(`/company/${record._id}`, payload, false, true);
+            const response = await POST(`/company/update/id`, formdata, true, true);
+            console.log(response)
             if (response.status === 200) {
+                setTimeout(() => {
+                    showToast(`Documents updated sucessfully`, 'success');
+                }, 500);
                 fetchRetailerFirm();
                 setFirm(response)
                 handleClose();
+
             } else {
-                console.log("ERROR")
+                setTimeout(() => {
+                    showToast(`Error`, 'error');
+                }, 500);
             }
         } catch (error) {
             console.log(error);
@@ -121,11 +132,29 @@ const RetailerDoc = ({ record }) => {
         let errors = {};
 
         switch (name) {
-            case "bankName":
-            case "bankAccount":
-            case "bankAccountName":
-            case "bankIFSC":
+            case "aadharFileFront":
+            case "aadharFileBack":
+            case "PANfile":
                 errors[name] = !value ? "This is a required field" : "";
+            case "aadhar":
+                if (!value) {
+                    errors[name] = "This is a required field";
+                } else if (!/^\d{12}$/.test(value)) {
+                    errors[name] = "Aadhar number must be a 12-digit number";
+                } else {
+                    errors[name] = "";
+                }
+                break;
+
+            case "pan":
+                if (!value) {
+                    errors[name] = "This is a required field";
+                } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+                    errors[name] = "PAN number must be a 10-character alphanumeric identifier";
+                } else {
+                    errors[name] = "";
+                }
+                break;
             default:
                 break;
         }
@@ -157,7 +186,7 @@ const RetailerDoc = ({ record }) => {
             const response = await GET(`/retailer/firm/${record._id}`);
             console.log(response)
             if (response) {
-                setFirm(response.bankDetails)
+                setFirm(response)
             }
         } catch (error) {
             console.log(error)
@@ -168,6 +197,8 @@ const RetailerDoc = ({ record }) => {
     useEffect(() => {
         fetchRetailerFirm()
     }, []);
+
+
 
 
 
@@ -205,7 +236,7 @@ const RetailerDoc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Aadhar</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankName || 'N/A'}</TruncateText>}
+                            {firm?.aadhaar?.number ? maskAadhar(firm?.aadhaar?.number) : 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -221,7 +252,7 @@ const RetailerDoc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             PAN</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.accountName || 'N/A'}</TruncateText>}
+                            {firm?.pan?.number ? maskPAN(firm?.pan?.number) : 'N/A'}</TruncateText>}
                     />
                 </ListItem>
                 <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} />
@@ -232,7 +263,7 @@ const RetailerDoc = ({ record }) => {
                     width: '600px'
                 },
             }} fullWidth={false}>
-                <DialogTitle>Edit Retailer</DialogTitle>
+                <DialogTitle>{firm?.companyType ?? ""} Documents</DialogTitle>
                 <IconButton
                     edge="end"
                     color="inherit"
@@ -246,11 +277,11 @@ const RetailerDoc = ({ record }) => {
                 >
                     <Close />
                 </IconButton>
-                <DialogContent>
+                {firm?.companyType === "Proprietorship" && <DialogContent>
                     <Stack spacing={2}>
                         <>
                             <input
-                                ref={aadharRef}
+                                ref={aadharFrontRef}
                                 type="file"
                                 style={{ display: 'none' }}
                                 onChange={(e) => {
@@ -258,8 +289,8 @@ const RetailerDoc = ({ record }) => {
                                     if (file) {
                                         setFormValues((prev) => ({
                                             ...prev,
-                                            aadharFileName: file.name,
-                                            aadharFile: file
+                                            aadharFileFrontName: file.name,
+                                            aadharFileFront: file
                                         }))
                                     }
                                 }}
@@ -267,10 +298,50 @@ const RetailerDoc = ({ record }) => {
                             <TextField
                                 required
                                 id="outlined-password"
-                                label="Aadhar"
-                                value={formValues.aadharFileName}
+                                label="Aadhar Front"
+                                value={formValues.aadharFileFrontName}
                                 autoComplete="current-password"
-                                onClick={() => aadharRef.current.click()}
+                                onClick={() => aadharFrontRef.current.click()}
+                                error={Boolean(formErrors.password)}
+                                helperText={formErrors.password}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => { }}
+                                                onMouseDown={(event) => event.preventDefault()}
+                                                edge="end"
+                                            >
+                                                <FileOpenIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                disabled={true}
+                            />
+
+                            <input
+                                ref={aadharBackRef}
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    let file = e.target.files[0];
+                                    if (file) {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            aadharFileBackName: file.name,
+                                            aadharFileBack: file
+                                        }))
+                                    }
+                                }}
+                            />
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="Aadhar Back"
+                                value={formValues.aadharFileBackName}
+                                autoComplete="current-password"
+                                onClick={() => aadharBackRef.current.click()}
                                 error={Boolean(formErrors.password)}
                                 helperText={formErrors.password}
                                 InputProps={{
@@ -332,39 +403,176 @@ const RetailerDoc = ({ record }) => {
 
                             <TextField
                                 required
-                                id="outlined-bankAccountName"
-                                label="Account Name"
-                                placeholder="Account Name"
+                                id="outlined-aadhar"
+                                label="Aadhar Number"
+                                placeholder="Aadhar Number"
                                 onChange={handleInputChange}
-                                error={Boolean(formErrors.bankAccountName)}
-                                helperText={formErrors.bankAccountName}
-                                value={formValues.bankAccountName}
+                                error={Boolean(formErrors.aadhar)}
+                                helperText={formErrors.aadhar}
+                                value={formValues.aadhar}
                                 v
                             />
                             <TextField
                                 required
-                                id="outlined-bankAccount"
-                                label="Account Number"
-                                placeholder="Account Number"
+                                id="outlined-pan"
+                                label="PAN Number"
+                                placeholder="PAN Number"
                                 onChange={handleInputChange}
-                                error={Boolean(formErrors.bankAccount)}
-                                helperText={formErrors.bankAccount}
-                                value={formValues.bankAccount}
-                            />
-                            <TextField
-                                required
-                                id="outlined-bankIFSC"
-                                label="ISFC"
-                                placeholder="IFSC"
-                                onChange={handleInputChange}
-                                error={Boolean(formErrors.bankIFSC)}
-                                helperText={formErrors.bankIFSC}
-                                value={formValues.bankIFSC}
-
+                                error={Boolean(formErrors.pan)}
+                                helperText={formErrors.pan}
+                                value={formValues.pan}
                             />
                         </>
                     </Stack>
-                </DialogContent>
+                </DialogContent>}
+                {firm?.companyType === "Partnership" && <DialogContent>
+                    <Stack spacing={2}>
+                        <>
+                            <input
+                                ref={aadharFrontRef}
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    let file = e.target.files[0];
+                                    if (file) {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            aadharFileFrontName: file.name,
+                                            aadharFileFront: file
+                                        }))
+                                    }
+                                }}
+                            />
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="Aadhar Front"
+                                value={formValues.aadharFileFrontName}
+                                autoComplete="current-password"
+                                onClick={() => aadharFrontRef.current.click()}
+                                error={Boolean(formErrors.password)}
+                                helperText={formErrors.password}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => { }}
+                                                onMouseDown={(event) => event.preventDefault()}
+                                                edge="end"
+                                            >
+                                                <FileOpenIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                disabled={true}
+                            />
+
+                            <input
+                                ref={aadharBackRef}
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    let file = e.target.files[0];
+                                    if (file) {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            aadharFileBackName: file.name,
+                                            aadharFileBack: file
+                                        }))
+                                    }
+                                }}
+                            />
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="Aadhar Back"
+                                value={formValues.aadharFileBackName}
+                                autoComplete="current-password"
+                                onClick={() => aadharBackRef.current.click()}
+                                error={Boolean(formErrors.password)}
+                                helperText={formErrors.password}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => { }}
+                                                onMouseDown={(event) => event.preventDefault()}
+                                                edge="end"
+                                            >
+                                                <FileOpenIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                disabled={true}
+                            />
+
+                            <input
+                                ref={panRef}
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    let file = e.target.files[0];
+                                    if (file) {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            PANFileName: file.name,
+                                            PANFile: file
+                                        }))
+                                    }
+                                }}
+                            />
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="PAN"
+                                value={formValues.PANFileName}
+                                autoComplete="current-password"
+                                onClick={() => panRef.current.click()}
+                                error={Boolean(formErrors.password)}
+                                helperText={formErrors.password}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => { }}
+                                                onMouseDown={(event) => event.preventDefault()}
+                                                edge="end"
+                                            >
+                                                <FileOpenIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                disabled={true}
+                            />
+
+
+                            <TextField
+                                required
+                                id="outlined-aadhar"
+                                label="Aadhar Number"
+                                placeholder="Aadhar Number"
+                                onChange={handleInputChange}
+                                error={Boolean(formErrors.aadhar)}
+                                helperText={formErrors.aadhar}
+                                value={formValues.aadhar}
+                                v
+                            />
+                            <TextField
+                                required
+                                id="outlined-pan"
+                                label="PAN Number"
+                                placeholder="PAN Number"
+                                onChange={handleInputChange}
+                                error={Boolean(formErrors.pan)}
+                                helperText={formErrors.pan}
+                                value={formValues.pan}
+                            />
+                        </>
+                    </Stack>
+                </DialogContent>}
                 <DialogActions>
                     <div>
                         {

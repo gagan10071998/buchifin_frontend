@@ -113,6 +113,8 @@ const RetailerAdd = ({
       .join("");
   };
 
+
+
   const [formValues, setFormValues] = useState({
     firstName: "",
     lastName: "",
@@ -302,20 +304,24 @@ const RetailerAdd = ({
     }));
   };
 
+
   const handleClose = () => {
     onClose();
   };
 
   const isFormValid = () => {
-    const allFieldsFilled = Object.values(formValues).every(
-      (value) => value !== ""
-    );
+    // const allFieldsFilled = Object.values(formValues).every(
+    //   (value) => value !== ""
+    // );
     const noErrors = Object.values(formErrors).every(
       (error) => error === ""
     );
 
-    return allFieldsFilled && noErrors;
+    return noErrors;
   };
+
+  console.log(formErrors,isFormValid())
+
 
   useEffect(() => {
     if (formValues.pin.length === 6) {

@@ -18,6 +18,7 @@ import {
 import Stack from "@mui/material/Stack";
 import useAPI from "app/hooks/useApi";
 import Close from "@mui/icons-material/Close";
+import useToast from 'app/hooks/useToast';
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -36,11 +37,10 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
 
 const BankAcc = ({ record }) => {
     console.log(record)
-    const { PUT, GET } = useAPI();
+    const { POST, GET } = useAPI();
     const [editBankModal, setEditBankModal] = useState(false);
     const [ifscDetails, setIFSCDetails] = useState("");
-
-
+    const showToast = useToast();
     function formatDate(dateString) {
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         const date = new Date(dateString);
@@ -57,11 +57,7 @@ const BankAcc = ({ record }) => {
         bankIFSC: "",
     });
 
-    console.log(formValues)
-
-    const [formErrors, setFormErrors] = useState({});
-    const [isFormDirty, setIsFormDirty] = useState(false);
-
+   
     const handleInputChange = (e) => {
 
         let { id } = e.target;
@@ -86,24 +82,57 @@ const BankAcc = ({ record }) => {
         }
     };
 
-    const handleSubscribe = async () => {
-        let payload = {
-            bankDetails: {
-                accountName: formValues.bankAccountName,
-                accountNumber: formValues.bankAccount,
-                ifscCode: formValues.bankIFSC,
-                bankName: formValues.bankName
-            },
-        };
+    const [formErrors, setFormErrors] = useState({});
+    const [isFormDirty, setIsFormDirty] = useState(false);
 
+    const handleInPOSTChange = (e) => {
+
+        let { id } = e.target;
+        const fieldName = id.split("-")[1];
+        console.log(id, fieldName)
+        if (e.target.files) {
+            setFormValues((prevState) => ({
+                ...prevState,
+                [fieldName]: e.target.files[0],
+            }));
+        } else {
+            let { value } = e.target;
+            value = ["stateName", "adminName", "adminEmail"].includes(fieldName)
+                ? value.trimStart()
+                : value;
+            setFormValues((prevState) => ({
+                ...prevState,
+                [fieldName]: value,
+            }));
+            validateField(fieldName, value);
+            setIsFormDirty(true);
+        }
+    };
+
+    const handleSubscribe = async () => {
+        console.log(firm)
+        const formdata = new FormData();
+        formdata.append("id", firm._id);
+        formdata.append("bankDetails[accountName]", formValues.bankAccountName);
+        formdata.append("bankDetails[bankName]", formValues.bankName);
+        formdata.append("bankDetails[ifscCode]", formValues.bankIFSC);
+        formdata.append("bankDetails[accountNumber]", formValues.bankAccount);
+        
+console.log({...formdata})
         try {
-            const response = await PUT(`/company/${record._id}`, payload, false, true);
+            const response = await POST(`/company/update/id`, formdata, true, true);
             if (response.status === 200) {
+                setTimeout(() => {
+                    showToast(`Bank Account updated sucessfully`, 'success');
+                }, 500);
                 fetchRetailerFirm();
                 setFirm(response)
                 handleClose();
+
             } else {
-                console.log("ERROR")
+                setTimeout(() => {
+                    showToast(`Error`, 'error');
+                }, 500);
             }
         } catch (error) {
             console.log(error);
@@ -134,14 +163,14 @@ const BankAcc = ({ record }) => {
     };
 
     const isFormValid = () => {
-        const allFieldsFilled = Object.values(formValues).every(
-            (value) => value !== ""
-        );
+        // const allFieldsFilled = Object.values(formValues).every(
+        //     (value) => value !== ""
+        // );
         const noErrors = Object.values(formErrors).every(
             (error) => error === ""
         );
 
-        return allFieldsFilled && noErrors && isFormDirty;
+        return noErrors && isFormDirty;
     };
 
 
@@ -150,7 +179,8 @@ const BankAcc = ({ record }) => {
             const response = await GET(`/retailer/firm/${record._id}`);
             console.log(response)
             if (response) {
-                setFirm(response.bankDetails)
+                console.log(response)
+                setFirm(response)
             }
         } catch (error) {
             console.log(error)
@@ -188,18 +218,20 @@ const BankAcc = ({ record }) => {
         if (firm) {
             setFormValues((prev) => ({
                 ...prev,
-                bankName: firm?.bankName,
-                bankAccount: firm?.accountNumber,
-                bankAccountName: firm?.accountName,
-                bankIFSC: firm?.ifscCode,
+                bankName: firm?.bankDetails?.bankName,
+                bankAccount: firm?.bankDetails.accountNumber,
+                bankAccountName: firm?.bankDetails.accountName,
+                bankIFSC: firm?.bankDetails.ifscCode,
             }))
         }
     }, [firm])
 
+    console.log("firmdetails",firm)
+
 
 
     useEffect(() => {
-        if (formValues.bankIFSC.length === 11) {
+        if (formValues?.bankIFSC?.length === 11) {
             getIFSCDetails();
         }
     }, [formValues.bankIFSC])
@@ -239,7 +271,7 @@ const BankAcc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Bank Name</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankName || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails.bankName || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -255,7 +287,7 @@ const BankAcc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Account Name</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.accountName || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails.accountName || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -271,7 +303,7 @@ const BankAcc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Account Number</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.accountNumber || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails.accountNumber || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -287,7 +319,7 @@ const BankAcc = ({ record }) => {
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             IFSC Code</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.ifscCode || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails.ifscCode || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -300,7 +332,7 @@ const BankAcc = ({ record }) => {
                     width: '600px'
                 },
             }} fullWidth={false}>
-                <DialogTitle>Edit Retailer</DialogTitle>
+                <DialogTitle>Bank Account </DialogTitle>
                 <IconButton
                     edge="end"
                     color="inherit"
