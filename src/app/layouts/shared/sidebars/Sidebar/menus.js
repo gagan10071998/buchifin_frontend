@@ -1,6 +1,7 @@
 import React from "react";
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import AgricultureIcon from '@mui/icons-material/Agriculture';
 const userTypesMenus = {
     "SUPER_ADMIN": [
         {
@@ -13,6 +14,19 @@ const userTypesMenus = {
                     label: 'sidebar.menuItem.retailers',
                     type: "nav-item",
                     icon: <AssignmentIcon sx={{ fontSize: 20 }} />
+                },
+            ]
+        },
+        {
+            label: 'Users',
+            type: "section",
+            icon: <AgricultureIcon sx={{ fontSize: 20 }} />,
+            children: [
+                {
+                    uri: "/users/agronomist",
+                    label: 'sidebar.menuItem.agronomist',
+                    type: "nav-item",
+                    icon: <AgricultureIcon sx={{ fontSize: 20 }} />
                 },
             ]
         },

@@ -3,7 +3,7 @@ import Div from "@jumbo/shared/Div";
 import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar, Chip, Paper, Grid } from "@mui/material";
 import styled from "@emotion/styled";
 import HomeIcon from '@mui/icons-material/Home';
-import TruncateText from '../../../TruncateTextComponent';
+import TruncateText from '../TruncateTextComponent';
 import Divider from "@mui/material/Divider";
 import { convertDate } from 'app/utils/appHelpers';
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,7 +35,7 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
 }));
 
 
-const BankAcc = ({ record }) => {
+const BackAccView = ({ record }) => {
     console.log(record)
     const { POST, GET } = useAPI();
     const [editBankModal, setEditBankModal] = useState(false);
@@ -432,4 +432,4 @@ console.log({...formdata})
     );
 };
 
-export default BankAcc;
+export default BackAccView;

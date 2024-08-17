@@ -4,6 +4,14 @@ import Page from "@jumbo/shared/Page";
 import ProtectedRoute from "app/shared/customComponents/ProtectedRoute";
 import RetailerTable from "app/shared/customComponents/Retailers/RetailerTable";
 import RetailerView from "app/shared/customComponents/Retailers/CaseView/RetailerView";
+import Agronomist from "app/shared/customComponents/Retailers/CaseView/components/agronomist/Agronomist";
+import CaseView from "app/shared/customComponents/CaseView";
+import UserProfile from "app/pages/users/user-profile/UserProfile";
+import DndExample from "app/pages/extensions/dnd/components/DndExample";
+import Lists from "app/pages/components/mui/Lists";
+import AgronomistList from "app/shared/customComponents/Agronomist/AgronomistList";
+import AgronomistView from "app/shared/customComponents/Agronomist/AgronomistView";
+import AgronomistTable from "app/shared/customComponents/Agronomist/AgronomistTable";
 
 const dashboardRoutes = [
   {
@@ -53,6 +61,34 @@ const dashboardRoutes = [
           }}
         >
       <Page component={RetailerTable} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/agronomist",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={AgronomistTable} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/agronomist/:id",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={AgronomistView} />
         </ProtectedRoute>
     ),
   },
