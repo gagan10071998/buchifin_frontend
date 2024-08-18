@@ -75,7 +75,7 @@ const UserProfileCard = ({ user }) => {
               menuItems={[
                 {
                   icon: <Visibility />,
-                  title: "View",
+                  title: "Raise Edit Request",
                   action: "viewAgronomist",
                 },
               ]}

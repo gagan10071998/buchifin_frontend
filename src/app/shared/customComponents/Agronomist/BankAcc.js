@@ -81,7 +81,7 @@ const BankAcc = ({ formValues, setFormValues }) => {
     <>
       <DialogTitle>Bank Account </DialogTitle>
       <DialogContent>
-        <Stack spacing={2}>
+        <Stack spacing={2} marginTop={4}>
           <>
             <TextField
               required

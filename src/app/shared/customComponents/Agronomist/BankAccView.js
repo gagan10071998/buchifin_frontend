@@ -110,9 +110,9 @@ const BackAccView = ({ record }) => {
     };
 
     const handleSubscribe = async () => {
-        console.log(firm)
+        console.log(record)
         const formdata = new FormData();
-        formdata.append("id", firm._id);
+        formdata.append("id", record._id);
         formdata.append("bankDetails[accountName]", formValues.bankAccountName);
         formdata.append("bankDetails[bankName]", formValues.bankName);
         formdata.append("bankDetails[ifscCode]", formValues.bankIFSC);
@@ -247,7 +247,7 @@ console.log({...formdata})
                     margin: theme => theme.spacing(0, -2),
                 }}
             >
-                <div onClick={() => setEditBankModal(true)} style={{
+                {/* <div onClick={() => setEditBankModal(true)} style={{
                     width: "100%",
                     display: "flex",
                     justifyContent: "flex-end",
@@ -255,9 +255,9 @@ console.log({...formdata})
 
                 }}>
                     <EditIcon />
-                </div>
+                </div> */}
 
-                <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} />
+                {/* <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} /> */}
 
                 <ListItem
                     sx={{

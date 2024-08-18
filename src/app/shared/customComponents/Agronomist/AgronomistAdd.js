@@ -29,7 +29,14 @@ import BankAcc from "./BankAcc";
 import AgroDocs from "./AgroDocs";
 // import "./styles.css";
 
-const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
+const AgronomistAdd = ({
+  record,
+  open,
+  onClose,
+  onSuccessfulAdd,
+  onError,
+  action = "",
+}) => {
   const pincodes = require("indian-pincodes");
   const { POST } = useAPI();
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +46,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
   const steps = ["Agronomist Details", "Bank Details", "Documents"];
   const [firmType, setFirmType] = useState("");
   const [gender, setGender] = useState("");
-//   const [employeeType, setEmployeeType] = useState("");
+  //   const [employeeType, setEmployeeType] = useState("");
 
   const totalSteps = () => {
     return steps.length;
@@ -147,13 +154,12 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
     pan: "",
     PANFile: "",
     qualificationDoc: "",
-    qualificationDocName:"",
+    qualificationDocName: "",
     govtIdName: "",
     govtId: "",
     cinDoc: "",
     cinDocName: "",
-    employeeType: ""
-
+    employeeType: "",
   });
 
   console.log(formValues.pin);
@@ -182,6 +188,20 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
   };
 
   const handleSubscribe = async () => {
+    const addressData = [
+      {
+        zip: formValues.pin,
+        city: formValues.city,
+        state: formValues.state,
+        address: formValues.address,
+        country: formValues.country,
+        addressType: formValues.addressType || "Home",
+        district: formValues.district,
+      },
+    ];
+
+    // Convert the addressData object to a JSON string
+    const addressDataJSON = JSON.stringify(addressData);
     const payload = new FormData();
     payload.append("dob", dob);
     payload.append("name", formValues.name);
@@ -189,31 +209,38 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
     payload.append("phone[0][phone]", formValues.phone);
     payload.append("phone[0][phoneType]", formValues.phoneType || "Home");
     payload.append("gender", formValues.gender.toLocaleUpperCase());
-    payload.append("address", formValues.address);
     payload.append("password", formValues.password);
     payload.append("address[0][zip]", formValues.pin);
     payload.append("address[0][city]", formValues.city);
     payload.append("address[0][state]", formValues.state);
-    payload.append("address[0][address]", formValues.pin);
+    payload.append("address[0][address]", formValues.address);
     payload.append("address[0][country]", formValues.country);
-    payload.append("address[0][addressType]", formValues.pin);
+    payload.append("address[0][addressType]", formValues.addressType || "Home");
     payload.append("address[0][district]", formValues.district);
     payload.append("bankDetails[bankName]", formValues.bankName);
     payload.append("bankDetails[accountName]", formValues.bankAccountName);
     payload.append("bankDetails[ifscCode]", formValues.bankIFSC);
     payload.append("bankDetails[accountNumber]", formValues.accountNumber);
-    payload.append("bankDetails[cancelCheque][front]", formValues.canceledChequeFileFront);
-    payload.append("bankDetails[cancelCheque][back]", formValues.canceledChequeFileBack);
+    payload.append(
+      "bankDetails[cancelCheque][front]",
+      formValues.canceledChequeFileFront
+    );
+    payload.append(
+      "bankDetails[cancelCheque][back]",
+      formValues.canceledChequeFileBack
+    );
     payload.append("pan[number]", formValues.pan);
     payload.append("pan[doc][front]", formValues.PANFile);
     payload.append("aadhaar[number]", formValues.aadhar);
     payload.append("aadhaar[doc][front]", formValues.aadharFileFront);
     payload.append("aadhaar[doc][back]", formValues.aadharFileBack);
-    payload.append("qualificationDocs[0][name]", formValues.qualificationDocName);
+    payload.append(
+      "qualificationDocs[0][name]",
+      formValues.qualificationDocName
+    );
     payload.append("qualificationDocs[0][doc]", formValues.qualificationDoc);
-    console.log('MY PAYLOAD', payload);
-    console.log('MY PAYLOAD JSON', JSON.stringify(payload));
-
+    console.log("MY PAYLOAD", payload);
+    console.log("MY PAYLOAD JSON", JSON.stringify(payload));
 
     try {
       const response = await POST("/agronomist", payload, true, true);
@@ -301,7 +328,6 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
   console.log(formErrors, isFormValid());
   console.log(formValues);
 
-
   useEffect(() => {
     if (formValues.pin.length === 6) {
       const details = pincodes.getPincodeDetails(parseInt(formValues.pin));
@@ -326,6 +352,48 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
     }
   }, [formValues.pin]);
 
+  useEffect(() => {
+    console.log("RECORD DATA", record);
+    if (record?._id) {
+      setFormValues((prevState) => ({
+        ...prevState,
+        name: record.name || "",
+        email: record.email || "",
+        phone: record.phone || "",
+        password: record.password || "",
+        gender: record.gender || "",
+        country: record.address[0].country || "",
+        state: record.address[0].state || "",
+        district: record.address[0].district || "",
+        city: record.address[0].city || "",
+        pin: record.address[0].pin || "",
+        address: record.address[0].address || "",
+        // bankName: record?.bankDetails[0]?.bankName || "",
+        // bankAccount: record?.bankDetails[0]?.bankAccount || "",
+        // bankAccountName: record?.bankDetails[0]?.bankAccountName || "",
+        // bankIFSC: record?.bankDetails[0]?.bankIFSC || "",
+        // canceledChequeFileBack: record.canceledChequeFileBack,
+        // canceledChequeFileFront: record.canceledChequeFileFront,
+        // aadharFileFrontName: record.aadharFileFrontName,
+        // aadharFileBackName: record.aadharFileBackName,
+        // aadharFileFront: record.aadharFileFront,
+        // aadharFileBack: record.aadharFileBack,
+        // aadhar: record.aadhar,
+        // PANFileName: record.PANFileName,
+        // pan: record.pan,
+        // PANFile: record.PANFile,
+        // qualificationDoc: record.qualificationDoc,
+        // qualificationDocName:record.qualificationDocName,
+        // govtIdName: record.govtIdName,
+        // govtId: record.govtId,
+        // cinDoc: record.cinDoc,
+        // cinDocName: record.cinDocName,
+        // employeeType: record.employeeType,
+      }));
+    }
+  }, [record]);
+  console.log("FORMVALUES", formValues);
+
   return (
     <div>
       <Dialog
@@ -333,11 +401,14 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
         PaperProps={{
           style: {
             width: "750px",
-            maxWidth: 'none'
+            maxWidth: "none",
           },
         }}
       >
-        <DialogTitle> Add New Agronomist</DialogTitle>
+        <DialogTitle>
+          {" "}
+          {action === "Edit" ? "Edit Agronomist" : "Add New Agronomist"}
+        </DialogTitle>
         <IconButton
           edge="end"
           color="inherit"
@@ -401,7 +472,11 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   onChange={handleInputChange}
                   error={Boolean(formErrors.phone)}
                   helperText={formErrors.phone}
-                  value={formValues.phone}
+                  value={
+                    action === "Edit"
+                      ? formValues?.phone[0]?.phone
+                      : formValues.phone
+                  }
                 />
                 {/* Dropdown for Gender */}
                 <Autocomplete
@@ -424,6 +499,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                       label="Gender"
                       error={Boolean(formErrors.gender)}
                       helperText={formErrors.gender}
+                      disabled={action === "Edit"}
                     />
                   )}
                 />
@@ -450,6 +526,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                         helperText={formErrors.dob}
                       />
                     )}
+                    disabled={action === "Edit"}
                   />
                 </LocalizationProvider>
 
@@ -476,6 +553,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   inputProps={{
                     maxLength: 6,
                   }}
+                  disabled={action === "Edit"}
                 />
                 <TextField
                   required
@@ -486,6 +564,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   error={Boolean(formErrors.country)}
                   helperText={formErrors.country}
                   value={formValues.country}
+                  disabled={action === "Edit"}
                 />
                 <TextField
                   required
@@ -496,6 +575,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   error={Boolean(formErrors.state)}
                   helperText={formErrors.state}
                   value={formValues.state}
+                  disabled={action === "Edit"}
                 />
                 <TextField
                   required
@@ -506,6 +586,7 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   error={Boolean(formErrors.district)}
                   helperText={formErrors.district}
                   value={formValues.district}
+                  disabled={action === "Edit"}
                 />
                 <TextField
                   required
@@ -516,10 +597,12 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   error={Boolean(formErrors.city)}
                   helperText={formErrors.city}
                   value={formValues.city}
+                  disabled={action === "Edit"}
                 />
 
                 <TextField
                   required
+                  style={{ display: action === "Edit" ? "none" : "block" }}
                   id="outlined-password"
                   label="Password"
                   type={showPassword ? "text" : "password"}
@@ -568,11 +651,12 @@ const AgronomistAdd = ({ open, onClose, onSuccessfulAdd, onError }) => {
                   options={employeeTypes}
                   getOptionLabel={(option) => option}
                   value={formValues.employeeType}
+                  disabled={action === "Edit"}
                   onChange={(event, newValue) => {
                     setFormValues((prevState) => ({
-                        ...prevState,
-                        employeeType: newValue,
-                      }));
+                      ...prevState,
+                      employeeType: newValue,
+                    }));
                     handleInputChange({
                       target: {
                         id: "outlined-employeeUnder",
