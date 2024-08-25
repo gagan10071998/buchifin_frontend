@@ -110,8 +110,6 @@ const JumboLayout = (props) => {
             }}
             className="CmtLayout-content"
           >
-            hey
-            {console.log("PROPS.CHILDREN", props.children?.props?.children)}
             {props.children?.props?.children}
           </Div>
           <JumboLayoutFooter>{props.footer}</JumboLayoutFooter>
