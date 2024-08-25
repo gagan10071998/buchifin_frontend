@@ -14,6 +14,18 @@ const userTypesMenus = {
                     type: "nav-item",
                     icon: <AssignmentIcon sx={{ fontSize: 20 }} />
                 },
+                {
+                    uri: "/users/distributors",
+                    label: 'sidebar.menuItem.distributors',
+                    type: "nav-item",
+                    icon: <AssignmentIcon sx={{ fontSize: 20 }} />
+                },
+                {
+                    uri: "/users/manufacturers",
+                    label: 'sidebar.menuItem.manufacturers',
+                    type: "nav-item",
+                    icon: <AssignmentIcon sx={{ fontSize: 20 }} />
+                },
             ]
         },
     ],

@@ -77,7 +77,7 @@ const FirmEditModal = ({
         try {
             const response = await PUT(`/retailer/${record._id}`, payload, false, true);
             if (response.status === 200) {
-                fetchRetailer(); 
+                fetchRetailer();
                 setFirmEditModalOpen(false);
             } else {
                 console.log("ERROR")
@@ -154,7 +154,11 @@ const FirmEditModal = ({
     return (
         <React.Fragment>
             <div>
-                <Dialog open={true} maxWidth={"600"} fullWidth={true}>
+                <Dialog open={true} PaperProps={{
+                    style: {
+                        width: '600px'
+                    },
+                }} fullWidth={false}>
                     <DialogTitle>Edit Retailer</DialogTitle>
                     <IconButton
                         edge="end"
@@ -181,9 +185,9 @@ const FirmEditModal = ({
                                     error={Boolean(formErrors.name)}
                                     helperText={formErrors.name}
                                     value={formValues.name}
-                                    inputProps={{
-                                        maxLength: 140,
-                                    }}
+                                // inputProps={{
+                                //     maxLength: 140,
+                                // }}
                                 />
 
                                 <TextField
