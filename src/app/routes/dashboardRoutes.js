@@ -12,6 +12,11 @@ import Lists from "app/pages/components/mui/Lists";
 import AgronomistList from "app/shared/customComponents/Agronomist/AgronomistList";
 import AgronomistView from "app/shared/customComponents/Agronomist/AgronomistView";
 import AgronomistTable from "app/shared/customComponents/Agronomist/AgronomistTable";
+import DistributorTable from "../shared/customComponents/Retailers/DistributorTable";
+import DistributorView from "app/shared/customComponents/Retailers/CaseView/DistributorView";
+import ManufacturerView from "app/shared/customComponents/Retailers/CaseView/ManfacturerView";
+import ManufacturerTable from "app/shared/customComponents/Retailers/ManufacturerTable";
+
 
 const dashboardRoutes = [
   {
@@ -103,6 +108,62 @@ const dashboardRoutes = [
           }}
         >
       <Page component={RetailerView} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/distributors",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={DistributorTable} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/manufacturers",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={ManufacturerTable} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/distributor/:id",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={DistributorView} />
+        </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/manufacturer/:id",
+    element: (
+        <ProtectedRoute
+          route={{
+            roles: [
+              "SUPER_ADMIN"
+            ],
+          }}
+        >
+      <Page component={ManufacturerView} />
         </ProtectedRoute>
     ),
   },

@@ -39,7 +39,7 @@ const DistributorAdd = ({
   const [dob, setDob] = useState(null);
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({});
-  const steps = ["Retailer Details", "Firm Details"];
+  const steps = ["Distributor Details", "Firm Details"];
   const [firmType, setFirmType] = useState("");
   const [gender, setGender] = useState("");
 
@@ -166,7 +166,7 @@ const DistributorAdd = ({
   const handleSubscribe = async () => {
 
     let payload = {
-      retailer: {
+      distributor: {
         name: formValues.firstName + " " + formValues.lastName,
         email: formValues.email,
         gender: gendersMapping[formValues.gender],
@@ -208,7 +208,7 @@ const DistributorAdd = ({
     };
 
     try {
-      const response = await POST("/retailer", payload, false, true);
+      const response = await POST("/distributor", payload, false, true);
       if (response.status === 200) {
         onSuccessfulAdd();
       } else {
@@ -382,7 +382,7 @@ const DistributorAdd = ({
             width: '600px'
           },
         }} fullWidth={false}>
-          <DialogTitle>Add New Retailer</DialogTitle>
+          <DialogTitle>Add New Distributor</DialogTitle>
           <IconButton
             edge="end"
             color="inherit"
@@ -408,11 +408,11 @@ const DistributorAdd = ({
                 ))}
               </Stepper>
 
-              {/* Fields for retailer details */}
+              {/* Fields for Distributor details */}
               {activeStep === 0 && (
                 <>
                   <DialogContentText>
-                    Enter the details of the new retailer .
+                    Enter the details of the new Distributor .
                   </DialogContentText>
                   <TextField
                     required
