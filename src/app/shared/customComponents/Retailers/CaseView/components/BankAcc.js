@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Div from "@jumbo/shared/Div";
-import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar, Chip, Paper, Grid } from "@mui/material";
+import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar,
+    InputAdornment, Chip, Paper, Grid } from "@mui/material";
 import styled from "@emotion/styled";
 import HomeIcon from '@mui/icons-material/Home';
 import TruncateText from '../../../TruncateTextComponent';
@@ -19,6 +20,8 @@ import Stack from "@mui/material/Stack";
 import useAPI from "app/hooks/useApi";
 import Close from "@mui/icons-material/Close";
 import useToast from 'app/hooks/useToast';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -46,6 +49,7 @@ const BankAcc = ({ record }) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', options);
     }
+    const cancelChequeFront = useRef(null);
 
 
     const [firm, setFirm] = useState(null);
@@ -55,6 +59,8 @@ const BankAcc = ({ record }) => {
         bankAccount: "",
         bankAccountName: "",
         bankIFSC: "",
+        cancelChequqName : "",
+        cancelCheque: ""
     });
 
    
@@ -117,6 +123,8 @@ const BankAcc = ({ record }) => {
         formdata.append("bankDetails[bankName]", formValues.bankName);
         formdata.append("bankDetails[ifscCode]", formValues.bankIFSC);
         formdata.append("bankDetails[accountNumber]", formValues.bankAccount);
+        formdata.append("bankDetails[cancelCheque][front]", formValues.cancelCheque);
+
         
 console.log({...formdata})
         try {
@@ -166,11 +174,11 @@ console.log({...formdata})
         // const allFieldsFilled = Object.values(formValues).every(
         //     (value) => value !== ""
         // );
-        const noErrors = Object.values(formErrors).every(
-            (error) => error === ""
-        );
+        // const noErrors = Object.values(formErrors).every(
+        //     (error) => error === ""
+        // );
 
-        return noErrors && isFormDirty;
+        return true;
     };
 
 
@@ -218,10 +226,10 @@ console.log({...formdata})
         if (firm) {
             setFormValues((prev) => ({
                 ...prev,
-                bankName: firm?.bankDetails?.bankName,
-                bankAccount: firm?.bankDetails.accountNumber,
-                bankAccountName: firm?.bankDetails.accountName,
-                bankIFSC: firm?.bankDetails.ifscCode,
+                bankName: firm?.bankDetails?.bankName ,
+                bankAccount: firm?.bankDetails?.accountNumber,
+                bankAccountName: firm?.bankDetails?.accountName,
+                bankIFSC: firm?.bankDetails?.ifscCode,
             }))
         }
     }, [firm])
@@ -271,7 +279,7 @@ console.log({...formdata})
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Bank Name</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankDetails.bankName || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails?.bankName || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -287,7 +295,7 @@ console.log({...formdata})
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Account Name</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankDetails.accountName || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails?.accountName || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -303,7 +311,7 @@ console.log({...formdata})
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             Account Number</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankDetails.accountNumber || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails?.accountNumber || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -319,7 +327,7 @@ console.log({...formdata})
                         primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5}>
                             IFSC Code</Typography>}
                         secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
-                            {firm?.bankDetails.ifscCode || 'N/A'}</TruncateText>}
+                            {firm?.bankDetails?.ifscCode || 'N/A'}</TruncateText>}
                     />
                 </ListItem>
 
@@ -394,6 +402,45 @@ console.log({...formdata})
                                 helperText={formErrors.bankIFSC}
                                 value={formValues.bankIFSC}
                                 
+                            />
+                              <input
+                                ref={cancelChequeFront}
+                                type="file"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    let file = e.target.files[0];
+                                    if (file) {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            cancelChequqName: file.name,
+                                            cancelCheque: file
+                                        }))
+                                    }
+                                }}
+                            />
+                            <TextField
+                                required
+                                id="outlined-password"
+                                label="Cancelled Cheque"
+                                value={formValues.cancelChequqName}
+                                autoComplete="current-password"
+                                onClick={() => cancelChequeFront.current.click()}
+                                error={Boolean(formErrors.cancelChequqName)}
+                                helperText={formErrors.cancelChequqName}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => { }}
+                                                onMouseDown={(event) => event.preventDefault()}
+                                                edge="end"
+                                            >
+                                                <FileOpenIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                disabled={true}
                             />
                             {/* <ListItem
                                 sx={{

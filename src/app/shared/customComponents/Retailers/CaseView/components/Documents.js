@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Div from "@jumbo/shared/Div";
-import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar, Chip, Paper, Grid, InputAdornment } from "@mui/material";
+import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar, Chip, Paper, Grid, InputAdornment, InputLabel, MenuItem } from "@mui/material";
 import styled from "@emotion/styled";
 import HomeIcon from '@mui/icons-material/Home';
 import TruncateText from '../../../TruncateTextComponent';
@@ -22,6 +22,8 @@ import Stack from "@mui/material/Stack";
 import useAPI from "app/hooks/useApi";
 import Close from "@mui/icons-material/Close";
 import useToast from 'app/hooks/useToast';
+import Select from 'react-select';
+import zIndex from '@mui/material/styles/zIndex';
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -46,8 +48,13 @@ const RetailerDoc = ({ record }) => {
     const aadharFrontRef = useRef(null);
     const aadharBackRef = useRef(null);
     const panRef = useRef(null);
+    const seed = useRef(null);
+    const insecticide = useRef(null);
+    const fertlizer = useRef(null);
+
     const showToast = useToast();
     const [firm, setFirm] = useState(null);
+    const [currentLicense, setCurrentLicense] = useState([]);
     const [formValues, setFormValues] = useState({
         aadharFileFrontName: "",
         aadharFileBackName: "",
@@ -56,10 +63,18 @@ const RetailerDoc = ({ record }) => {
         aadhar: "",
         PANFileName: "",
         pan: "",
-        PANFile: ""
+        PANFile: "",
+        seedFileName: "",
+        seedFile: "",
+        insecticideFileName: "",
+        insecticideFile: "",
+        fertilizerFileName: "",
+        fertlizerFile: "",
+        seed: "",
+        insecticide: "",
+        fertilizer: ""
     });
 
-    console.log(formValues)
 
     const [formErrors, setFormErrors] = useState({});
     const [isFormDirty, setIsFormDirty] = useState(false);
@@ -88,7 +103,7 @@ const RetailerDoc = ({ record }) => {
         }
     };
 
-    console.log(formValues)
+
 
     const handleSubscribe = async () => {
 
@@ -99,12 +114,30 @@ const RetailerDoc = ({ record }) => {
         formdata.append("aadhaar[doc][front]", formValues.aadharFileFront);
         formdata.append("aadhaar[doc][back]", formValues.aadharFileBack);
         formdata.append("pan[doc][front]", formValues.PANFile);
-        console.log(...formdata)
 
-        const requestOptions = {
-            body: formdata,
-            redirect: "follow"
-        };
+
+        currentLicense.forEach((value, index) => {
+            if (value.value === "seed") {
+                formdata.append(`documents[${index}][number]`, formValues.seed);
+                formdata.append(`documents[${index}][note]`, formValues.seedFileName);
+                formdata.append(`documents[${index}][doc][front]`, formValues.seedFile);
+                formdata.append(`documents[${index}][label]`, `seed`);
+            }
+
+            if (value.value === "insecticide") {
+                formdata.append(`documents[${index}][number]`, formValues.insecticide);
+                formdata.append(`documents[${index}][note]`, formValues.insecticideFileName);
+                formdata.append(`documents[${index}][doc][front]`, formValues.insecticideFile);
+                formdata.append(`documents[${index}][label]`, 'insecticide');
+            }
+
+            if (value.value === "fertilizer") {
+                formdata.append(`documents[${index}][number]`, formValues.fertilizer);
+                formdata.append(`documents[${index}][note]`, formValues.fertilizerFileName);
+                formdata.append(`documents[${index}][doc][front]`, formValues.fertlizerFile);
+                formdata.append(`documents[${index}][label]`, 'fertilizer');
+            }
+        });
 
 
         try {
@@ -170,14 +203,14 @@ const RetailerDoc = ({ record }) => {
     };
 
     const isFormValid = () => {
-        const allFieldsFilled = Object.values(formValues).every(
-            (value) => value !== ""
-        );
-        const noErrors = Object.values(formErrors).every(
-            (error) => error === ""
-        );
+        // const allFieldsFilled = Object.values(formValues).every(
+        //     (value) => value !== ""
+        // );
+        // const noErrors = Object.values(formErrors).every(
+        //     (error) => error === ""
+        // );
 
-        return allFieldsFilled && noErrors && isFormDirty;
+        return true;
     };
 
 
@@ -198,7 +231,90 @@ const RetailerDoc = ({ record }) => {
         fetchRetailerFirm()
     }, []);
 
+    const licenses = [{ label: "Seed", value: "seed" }, { label: "Fertilizer", value: "fertilizer" }, { label: "Insecticide", value: "insecticide" }];
 
+
+    const handleChange = (event) => {
+
+        console.log(event.target.value)
+        setCurrentLicense((prev) => [...prev, event.target.value[0]])
+    };
+    const customStyles = {
+        container: (provided) => ({
+            ...provided,
+            //   width: 300,
+        }),
+        control: (provided, state) => ({
+            ...provided,
+            borderColor: state.isFocused ? '#000' : '#ccc',
+            boxShadow: state.isFocused ? '0 0 0 1px #000' : 'none',
+            '&:hover': {
+                borderColor: '#000',
+            },
+        }),
+        menu: (provided) => ({
+            ...provided,
+            // height: "200px",
+            zIndex: "9999"
+
+            //   width: 300,
+        }),
+        menuList: (provided) => ({
+            ...provided,
+            padding: 0,
+            zIndex: "9999"
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#ddd' : '#fff',
+            color: state.isSelected ? '#000' : '#333',
+            cursor: 'pointer',
+            '&:hover': {
+                backgroundColor: '#f0f0f0',
+            },
+        }),
+        singleValue: (provided) => ({
+            ...provided,
+            color: '#333',
+        }),
+        placeholder: (provided) => ({
+            ...provided,
+            color: '#aaa',
+        }),
+        valueContainer: (provided) => ({
+            ...provided,
+            padding: '0 6px',
+            height: "50px"
+
+        }),
+    };
+
+    const checkCurrentLicense = (license) => {
+        if ((currentLicense.filter((value) => value.value === license).length)) {
+            return true
+        }
+        return false;
+    }
+
+    useEffect(() => {
+        console.log(firm)
+        if (firm?._id && firm?.aadhaar?.doc && firm?.pan?.doc) {
+            setFormValues(() => ({
+                aadharFileFrontName: firm.aadhaar.doc.front ?? "",
+                aadharFileBackName: firm.aadhaar.doc.back ?? "",
+                aadharFileFront: "",
+                aadharFileBack: "",
+                aadhar: firm.aadhaar.number,
+                PANFileName: firm.pan.doc.front ?? "",
+                pan: firm.pan.number ?? "",
+                PANFile: "",
+            }))
+
+            console.log(firm.documents.filter((value)=>licenses.some((val)=> value.label === val.value)))
+        }
+
+
+    }, [firm])
 
 
 
@@ -255,7 +371,25 @@ const RetailerDoc = ({ record }) => {
                             {firm?.pan?.number ? maskPAN(firm?.pan?.number) : 'N/A'}</TruncateText>}
                     />
                 </ListItem>
+
+
                 <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} />
+                {firm?.documents ? firm.documents?.map((value) =>
+                    <ListItem
+                        sx={{
+                            width: { xs: '100%', sm: '50%', xl: '33.33%' }
+                        }}
+                    >
+                        <StyledListItemIcon>
+                            <HomeIcon fontSize={"inherit"} />
+                        </StyledListItemIcon>
+                        <ListItemText
+                            primary={<Typography fontSize={"12px"} variant="h6" color="text.secondary" mb={.5} textTransform={"uppercase"}>
+                                {value.label}</Typography>}
+                            secondary={<TruncateText width={'250px'} variant="body1" color="text.primary">
+                                {value.number ? value.number : 'N/A'}</TruncateText>}
+                        />
+                    </ListItem>) : null}
             </List>
 
             <Dialog open={editBankModal} PaperProps={{
@@ -280,6 +414,15 @@ const RetailerDoc = ({ record }) => {
                 {firm?.companyType === "Proprietorship" && <DialogContent>
                     <Stack spacing={2}>
                         <>
+                            <InputLabel id="demo-multiple-name-label">License Type</InputLabel>
+
+                            <Select
+                                options={licenses}
+                                isMulti
+                                styles={customStyles}
+                                onChange={(e) => setCurrentLicense(e)}
+
+                            />
                             <input
                                 ref={aadharFrontRef}
                                 type="file"
@@ -410,7 +553,7 @@ const RetailerDoc = ({ record }) => {
                                 error={Boolean(formErrors.aadhar)}
                                 helperText={formErrors.aadhar}
                                 value={formValues.aadhar}
-                                v
+
                             />
                             <TextField
                                 required
@@ -422,12 +565,188 @@ const RetailerDoc = ({ record }) => {
                                 helperText={formErrors.pan}
                                 value={formValues.pan}
                             />
+
+                            {
+                                licenses?.length > 0 && checkCurrentLicense("seed") ?
+                                    <>
+
+                                        <TextField
+                                            required
+                                            id="outlined-seed"
+                                            label="Seed License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.seed)}
+                                            helperText={formErrors.seed}
+                                            value={formValues.seed}
+
+                                        />
+                                        <input
+                                            ref={seed}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        seedFileName: file.name,
+                                                        seedFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-seed"
+                                            label={"Seed License File"}
+                                            value={formValues.seedFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => seed.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            }
+                            {
+                                licenses?.length > 0 && checkCurrentLicense("insecticide") ?
+                                    <>
+                                        <TextField
+                                            required
+                                            id="outlined-insecticide"
+                                            label="insecticide License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.insecticide)}
+                                            helperText={formErrors.insecticide}
+                                            value={formValues.insecticide}
+
+                                        />
+                                        <input
+                                            ref={insecticide}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        insecticideFileName: file.name,
+                                                        insecticideFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-password"
+                                            label={"Insecticide License File"}
+                                            value={formValues.insecticideFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => insecticide.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            } {
+                                licenses?.length > 0 && checkCurrentLicense("fertilizer") ?
+                                    <>
+                                        <TextField
+                                            required
+                                            id="outlined-fertilizer"
+                                            label="Fertilizer License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.fertlizer)}
+                                            helperText={formErrors.fertlizer}
+                                            value={formValues.fertlizer}
+
+                                        />
+                                        <input
+                                            ref={fertlizer}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        fertilizerFileName: file.name,
+                                                        fertlizerFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-password"
+                                            label={"Fertlizer License File"}
+                                            value={formValues.fertilizerFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => fertlizer.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            }
                         </>
                     </Stack>
                 </DialogContent>}
                 {firm?.companyType === "Partnership" && <DialogContent>
                     <Stack spacing={2}>
                         <>
+                            <Select
+                                options={licenses}
+                                isMulti
+                                styles={customStyles}
+                                onChange={(e) => setCurrentLicense(e)}
+
+                            />
                             <input
                                 ref={aadharFrontRef}
                                 type="file"
@@ -570,6 +889,175 @@ const RetailerDoc = ({ record }) => {
                                 helperText={formErrors.pan}
                                 value={formValues.pan}
                             />
+
+                            {
+                                licenses?.length > 0 && checkCurrentLicense("seed") ?
+                                    <>
+
+                                        <TextField
+                                            required
+                                            id="outlined-seed"
+                                            label="Seed License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.seed)}
+                                            helperText={formErrors.seed}
+                                            value={formValues.seed}
+
+                                        />
+                                        <input
+                                            ref={seed}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        seedFileName: file.name,
+                                                        seedFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-seed"
+                                            label={"Seed License File"}
+                                            value={formValues.seedFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => seed.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            }
+                            {
+                                licenses?.length > 0 && checkCurrentLicense("insecticide") ?
+                                    <>
+                                        <TextField
+                                            required
+                                            id="outlined-insecticide"
+                                            label="insecticide License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.insecticide)}
+                                            helperText={formErrors.insecticide}
+                                            value={formValues.insecticide}
+
+                                        />
+                                        <input
+                                            ref={insecticide}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        insecticideFileName: file.name,
+                                                        insecticideFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-password"
+                                            label={"Insecticide License File"}
+                                            value={formValues.insecticideFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => insecticide.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            } {
+                                licenses?.length > 0 && checkCurrentLicense("fertilizer") ?
+                                    <>
+                                        <TextField
+                                            required
+                                            id="outlined-fertilizer"
+                                            label="Fertilizer License"
+                                            placeholder="License Number"
+                                            onChange={handleInputChange}
+                                            error={Boolean(formErrors.fertlizer)}
+                                            helperText={formErrors.fertlizer}
+                                            value={formValues.fertlizer}
+
+                                        />
+                                        <input
+                                            ref={fertlizer}
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                let file = e.target.files[0];
+                                                if (file) {
+                                                    setFormValues((prev) => ({
+                                                        ...prev,
+                                                        fertilizerFileName: file.name,
+                                                        fertlizerFile: file
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                        <TextField
+                                            required
+                                            id="outlined-password"
+                                            label={"Fertlizer License File"}
+                                            value={formValues.fertilizerFileName}
+                                            autoComplete="current-password"
+                                            onClick={() => fertlizer.current.click()}
+                                            error={Boolean(formErrors.password)}
+                                            helperText={formErrors.password}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() => { }}
+                                                            onMouseDown={(event) => event.preventDefault()}
+                                                            edge="end"
+                                                        >
+                                                            <FileOpenIcon />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            disabled={true}
+                                        />
+                                    </> : null
+
+                            }
                         </>
                     </Stack>
                 </DialogContent>}

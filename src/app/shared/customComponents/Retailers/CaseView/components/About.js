@@ -300,7 +300,7 @@ const About = ({ record, setRecord, fetchRetailer }) => {
 
 
                 {(value === "2" ? <FirmDetails record={record} /> : <></>)}
-                {(value === "3" ? <BankAcc record={record} /> : <></>)}
+                {(value === "3" ? <BankAcc record={record}  /> : <></>)}
                 {(value === "4" ? <RetailerDoc record={record} /> : <></>)}
 
                 

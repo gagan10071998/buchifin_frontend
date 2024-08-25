@@ -32,7 +32,7 @@ const CaseView = () => {
     };
 
     useEffect(() => {
-        fetchCase()
+        // fetchCase()
     }, [id]);
     return (
         <JumboContentLayout
