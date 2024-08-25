@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Div from "@jumbo/shared/Div";
-import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar,
-    InputAdornment, Chip, Paper, Grid } from "@mui/material";
+import { ListItem, ListItemIcon, ListItemText, Typography, TextField, Avatar, Autocomplete, List, ListItemAvatar, Chip, Paper, Grid } from "@mui/material";
 import styled from "@emotion/styled";
 import HomeIcon from '@mui/icons-material/Home';
-import TruncateText from '../../../TruncateTextComponent';
+import TruncateText from '../TruncateTextComponent';
 import Divider from "@mui/material/Divider";
 import { convertDate } from 'app/utils/appHelpers';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,8 +19,6 @@ import Stack from "@mui/material/Stack";
 import useAPI from "app/hooks/useApi";
 import Close from "@mui/icons-material/Close";
 import useToast from 'app/hooks/useToast';
-import FileOpenIcon from '@mui/icons-material/FileOpen';
-
 
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -38,7 +35,7 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
 }));
 
 
-const BankAcc = ({ record }) => {
+const BackAccView = ({ record }) => {
     console.log(record)
     const { POST, GET } = useAPI();
     const [editBankModal, setEditBankModal] = useState(false);
@@ -49,7 +46,6 @@ const BankAcc = ({ record }) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', options);
     }
-    const cancelChequeFront = useRef(null);
 
 
     const [firm, setFirm] = useState(null);
@@ -59,8 +55,6 @@ const BankAcc = ({ record }) => {
         bankAccount: "",
         bankAccountName: "",
         bankIFSC: "",
-        cancelChequqName : "",
-        cancelCheque: ""
     });
 
    
@@ -116,15 +110,13 @@ const BankAcc = ({ record }) => {
     };
 
     const handleSubscribe = async () => {
-        console.log(firm)
+        console.log(record)
         const formdata = new FormData();
-        formdata.append("id", firm._id);
+        formdata.append("id", record._id);
         formdata.append("bankDetails[accountName]", formValues.bankAccountName);
         formdata.append("bankDetails[bankName]", formValues.bankName);
         formdata.append("bankDetails[ifscCode]", formValues.bankIFSC);
         formdata.append("bankDetails[accountNumber]", formValues.bankAccount);
-        formdata.append("bankDetails[cancelCheque][front]", formValues.cancelCheque);
-
         
 console.log({...formdata})
         try {
@@ -174,11 +166,11 @@ console.log({...formdata})
         // const allFieldsFilled = Object.values(formValues).every(
         //     (value) => value !== ""
         // );
-        // const noErrors = Object.values(formErrors).every(
-        //     (error) => error === ""
-        // );
+        const noErrors = Object.values(formErrors).every(
+            (error) => error === ""
+        );
 
-        return true;
+        return noErrors && isFormDirty;
     };
 
 
@@ -255,7 +247,7 @@ console.log({...formdata})
                     margin: theme => theme.spacing(0, -2),
                 }}
             >
-                <div onClick={() => setEditBankModal(true)} style={{
+                {/* <div onClick={() => setEditBankModal(true)} style={{
                     width: "100%",
                     display: "flex",
                     justifyContent: "flex-end",
@@ -263,9 +255,9 @@ console.log({...formdata})
 
                 }}>
                     <EditIcon />
-                </div>
+                </div> */}
 
-                <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} />
+                {/* <Divider sx={{ width: "100%", marginTop: "2%", marginBottom: "2%", borderBottomWidth: '2px' }} /> */}
 
                 <ListItem
                     sx={{
@@ -403,45 +395,6 @@ console.log({...formdata})
                                 value={formValues.bankIFSC}
                                 
                             />
-                              <input
-                                ref={cancelChequeFront}
-                                type="file"
-                                style={{ display: 'none' }}
-                                onChange={(e) => {
-                                    let file = e.target.files[0];
-                                    if (file) {
-                                        setFormValues((prev) => ({
-                                            ...prev,
-                                            cancelChequqName: file.name,
-                                            cancelCheque: file
-                                        }))
-                                    }
-                                }}
-                            />
-                            <TextField
-                                required
-                                id="outlined-password"
-                                label="Cancelled Cheque"
-                                value={formValues.cancelChequqName}
-                                autoComplete="current-password"
-                                onClick={() => cancelChequeFront.current.click()}
-                                error={Boolean(formErrors.cancelChequqName)}
-                                helperText={formErrors.cancelChequqName}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                onClick={() => { }}
-                                                onMouseDown={(event) => event.preventDefault()}
-                                                edge="end"
-                                            >
-                                                <FileOpenIcon />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                disabled={true}
-                            />
                             {/* <ListItem
                                 sx={{
                                     width: { xs: '100%', sm: '50%', xl: '33.33%' }
@@ -479,4 +432,4 @@ console.log({...formdata})
     );
 };
 
-export default BankAcc;
+export default BackAccView;

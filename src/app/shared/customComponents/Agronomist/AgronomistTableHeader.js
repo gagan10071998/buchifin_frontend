@@ -4,14 +4,15 @@ import styled from "@emotion/styled";
 import JumboSearch from "@jumbo/components/JumboSearch";
 import Stack from "@mui/material/Stack";
 import AddIcon from "@mui/icons-material/Add";
-import RetailerAdd from "./RetailerAdd";
+// import RetailerAdd from "./RetailerAdd";
 import useToast from "app/hooks/useToast";
+import AgronomistAdd from "./AgronomistAdd";
 
 const Item = styled.div(({ theme }) => ({
   padding: theme.spacing(0, 1),
 }));
 
-const RetailerTableHeader = ({
+const AgronomistTableHeader = ({
   setSearchValue,
   resetPage,
   totalCount,
@@ -24,7 +25,7 @@ const RetailerTableHeader = ({
   caseType,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [addNewRetailerDialog, setAddNewRetailerDialog] = useState(false);
+  const [addNewAgronomistDialog, setAddNewAgronomistDialog] = useState(false);
   const showToast = useToast();
 
   const debounce = (func, delay) => {
@@ -46,15 +47,15 @@ const RetailerTableHeader = ({
   );
 
   const handleSuccessfulAdd = () => {
-    setAddNewRetailerDialog(false);
+    setAddNewAgronomistDialog(false);
     setTimeout(() => {
-      showToast(`Successfully added the Retailer`, "success");
+      showToast(`Successfully added the Agronomist`, "success");
       fetchHistory();
     }, 500);
   };
 
   const handleAddError = (message) => {
-    setAddNewRetailerDialog(false);
+    setAddNewAgronomistDialog(false);
     setTimeout(() => {
       showToast(message, "error");
     }, 500);
@@ -137,15 +138,15 @@ const RetailerTableHeader = ({
               variant="contained"
               className="ml-10"
               endIcon={<AddIcon />}
-              onClick={() => setAddNewRetailerDialog(true)}
+              onClick={() => setAddNewAgronomistDialog(true)}
             >
-              ADD
+              ADD Agronomist
             </Button>
           </div>
         </Stack>
-        <RetailerAdd
-          open={addNewRetailerDialog}
-          onClose={() => setAddNewRetailerDialog(false)}
+        <AgronomistAdd
+          open={addNewAgronomistDialog}
+          onClose={() => setAddNewAgronomistDialog(false)}
           onSuccessfulAdd={handleSuccessfulAdd}
           onError={handleAddError}
         />
@@ -154,4 +155,4 @@ const RetailerTableHeader = ({
   );
 };
 
-export default RetailerTableHeader;
+export default AgronomistTableHeader;

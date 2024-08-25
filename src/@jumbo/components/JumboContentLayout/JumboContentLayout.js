@@ -12,7 +12,8 @@ const JumboContentLayout = ({header, footer, sidebar, children, layoutOptions}) 
 
     React.useEffect(() => {
         if (layoutOptions)
-            contentLayout.setContentLayout(layoutOptions);
+            console.log('LAYOUT OPTION', layoutOptions);
+            // contentLayout.setContentLayout(layoutOptions);
     }, [layoutOptions]);
 
     return (
